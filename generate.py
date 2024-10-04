@@ -2,15 +2,18 @@ import numpy as np
 
 class NACA4(object):
     """A class for generating  NACA 4 series aerofoils
-        TO-DO - linspace not good at LE capture """
+        with improved leading-edge capture """
     def __init__(self, foil, points=800, chord=1):
         super(NACA4, self).__init__()
         m = float(foil[0])/100      # max camber
         p = float(foil[1])/10       # chordwise position of max camber
         t = float(foil[2:])/100     # thickness
-        x = np.linspace(0, chord, points)
 
+        # Cosine-spaced points for better LE resolution
+        beta = np.linspace(0, np.pi, points)
+        x = chord * (0.5 * (1 - np.cos(beta)))  # Cosine spacing of points
         self.x = x
+
         yt = self.thickness(x, t)
         yc = []
         for coord in x:
@@ -23,7 +26,6 @@ class NACA4(object):
         y2 = yc - yt
         self.y = y1
         self.y2 = y2
-
 
     def thickness(self, x, t):
         # Y thickness at given x point
